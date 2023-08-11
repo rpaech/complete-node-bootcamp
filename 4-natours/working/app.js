@@ -1,26 +1,21 @@
+import path from "path";
+import url from "url";
 import express from "express";
 import morgan from "morgan";
 import toursRouter from "./routers/toursRouter.js";
 import usersRouter from "./routers/usersRouter.js";
+
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
 ///////////////////////////////////////////////////////////////////////////////
 // Register middleware
 
-app.use(morgan("dev"));
-
+if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 app.use(express.json());
-
-app.use((req, res, next) => {
-  console.log("Hello from the middleware! 😊");
-  next();
-});
-
-app.use((req, res, next) => {
-  req.requestTime = new Date().toISOString();
-  next();
-});
+app.use(express.static(`${__dirname}/public`));
 
 ///////////////////////////////////////////////////////////////////////////////
 // Register route handlers

@@ -8,8 +8,23 @@ const __dirname = path.dirname(__filename);
 const toursDataFile = `${__dirname}/../dev-data/data/tours-test.json`;
 const tours = JSON.parse(fs.readFileSync(toursDataFile));
 
+export function checkId(req, res, next, val) {
+  if (Number(val) > tours.length)
+    return res.status(404).json({ status: "fail", message: "Invalid Id" });
+
+  next();
+}
+
+export function checkBody(req, res, next) {
+  if (!req.body.name || !req.body.price)
+    return res
+      .status(400)
+      .json({ status: "fail", message: "Missing properties from body" });
+
+  next();
+}
+
 export function getAllTours(req, res) {
-  console.log(req.requestTime);
   res.status(200).json({
     status: "success",
     requestedAt: req.requestTime,
@@ -22,28 +37,22 @@ export function getTour(req, res) {
   const id = Number(req.params.id);
   const tour = tours.find((entry) => entry.id === id);
 
-  if (!tour) return res.status(404).json({ status: "fail" });
-
   res.status(200).json({ status: "success", data: { tour } });
 }
 
 export function createTour(req, res) {
   const newId = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newId }, req.body);
+  // const newTour = Object.assign({ id: newId }, req.body);
+  const newTour = { id: newId, ...req.body };
 
   tours.push(newTour);
 
-  fs.writeFile(toursDataFile, JSON.stringify(tours), (error) =>
-    res.status(200).json({ status: "success", data: { tour: newTour } })
+  fs.writeFile(toursDataFile, JSON.stringify(tours), () =>
+    res.status(200).json({ status: "success", data: { tour: newTour } }),
   );
 }
 
 export function updateTour(req, res) {
-  const id = Number(req.params.id);
-  const tour = tours.find((entry) => entry.id === id);
-
-  if (!tour) return res.status(404).json({ status: "fail" });
-
   // TODO: Update an existing tour.
 
   res
@@ -52,12 +61,7 @@ export function updateTour(req, res) {
 }
 
 export function deleteTour(req, res) {
-  const id = Number(req.params.id);
-  const tour = tours.find((entry) => entry.id === id);
-
   // TODO: Delete an existing tour.
-
-  if (!tour) return res.status(404).json({ status: "fail" });
 
   res.status(204).json({ status: "success", data: null });
 }

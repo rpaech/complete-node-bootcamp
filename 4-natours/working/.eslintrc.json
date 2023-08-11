@@ -1,8 +1,12 @@
 {
   "extends": ["airbnb", "prettier", "plugin:node/recommended"],
   "plugins": ["prettier"],
+  "parserOptions": { "ecmaVersion": 2020 },
   "rules": {
-    "prettier/prettier": "error",
+    "prettier/prettier": ["error", { "endOfLine": "auto" }],
+    "import/extensions": ["error", "always", { "ignorePackages": true }],
+    "import/no-named-as-default-member": "off",
+    "import/no-named-as-default": "off",
     "spaced-comment": "off",
     "no-console": "warn",
     "consistent-return": "off",

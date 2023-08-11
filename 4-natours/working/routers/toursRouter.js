@@ -3,10 +3,12 @@ import * as toursController from "../controllers/toursController.js";
 
 const router = express.Router();
 
+router.param("id", toursController.checkId);
+
 router
   .route("/")
   .get(toursController.getAllTours)
-  .post(toursController.createTour);
+  .post(toursController.checkBody, toursController.createTour);
 
 router
   .route("/:id")

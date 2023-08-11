@@ -2,10 +2,13 @@
   "name": "natours",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
-    "start": "nodemon server.js"
+    "start:dev": "nodemon --require dotenv/config server.js dotenv_config_path=development.env",
+    "start:prod": "cross-env NODE_ENV=production nodemon server.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +17,22 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.3.1",
+    "eslint": "^8.46.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.28.0",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.33.1",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.1"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "dev-data/"
+    ]
   }
 }
