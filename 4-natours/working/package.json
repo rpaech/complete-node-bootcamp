@@ -7,6 +7,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
+    "start:db": "mongod --auth --port 27017 --dbpath D:/MongoDB/data/db --logpath D:/MongoDB/log/mongod.log --bind_ip 127.0.0.1",
     "start:dev": "nodemon --require dotenv/config server.js dotenv_config_path=development.env",
     "start:prod": "cross-env NODE_ENV=production nodemon server.js"
   },
