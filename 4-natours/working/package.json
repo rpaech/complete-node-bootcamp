@@ -9,7 +9,8 @@
   "scripts": {
     "start:db": "mongod --auth --port 27017 --dbpath D:/MongoDB/data/db --logpath D:/MongoDB/log/mongod.log --bind_ip 127.0.0.1",
     "start:dev": "nodemon --require dotenv/config server.js dotenv_config_path=dev-local.env",
-    "start:prod": "cross-env NODE_ENV=production nodemon server.js"
+    "start:prod": "cross-env NODE_ENV=production nodemon server.js",
+    "import:tours": "node --require dotenv/config import-sample-data.js dotenv_config_path=dev-local.env"
   },
   "author": "",
   "license": "ISC",

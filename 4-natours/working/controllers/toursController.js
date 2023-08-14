@@ -1,8 +1,48 @@
 import Tour from "../models/toursModel.js";
 
+function createToursFilter(urlQuery) {
+  const validQueryFields = [
+    "name",
+    "duration",
+    "difficulty",
+    "duration",
+    "ratingsAverage",
+    "price",
+  ];
+
+  const validComparisonOperators = ["gte", "gt", "lte", "lt"];
+
+  const filter = {};
+  validQueryFields.forEach((field) => {
+    if (urlQuery[field]) {
+      switch (typeof urlQuery[field]) {
+        case "object":
+          validComparisonOperators.forEach((operator) => {
+            if (urlQuery[field][operator]) {
+              if (!filter[field]) filter[field] = {};
+              filter[field][`$${operator}`] = urlQuery[field][operator];
+            }
+          });
+          break;
+        default:
+          filter[field] = urlQuery[field];
+      }
+    }
+  });
+
+  return filter;
+}
+
 export async function getAllTours(req, res) {
   try {
-    const tours = await Tour.find();
+    const filter = createToursFilter(req.query);
+    const toursQuery = Tour.find(filter);
+
+    // TODO: Apply additional operations to the query.
+    // { difficulty: "easy", duration: { $gte: 5 } }
+
+    const tours = await toursQuery;
+
     res.status(200).json({
       status: "success",
       results: tours.length,
