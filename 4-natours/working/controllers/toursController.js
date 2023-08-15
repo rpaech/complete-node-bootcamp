@@ -40,13 +40,44 @@ function parseToursQueryCriteria(query) {
   return result;
 }
 
+export function aliasTopTours(req, res, next) {
+  req.query.limit = "5";
+  req.query.sort = "-ratingsAverage,price";
+  req.query.fields = "name,price,ratingsAverage,difficulty,summary";
+  next();
+}
+
 export async function getAllTours(req, res) {
   try {
-    const criteria = parseToursQueryCriteria(req.query);
-    const toursQuery = Tour.find(criteria);
+    const filter = parseToursQueryCriteria(req.query);
 
-    // TODO: Apply additional operations to the query.
-    // { difficulty: "easy", duration: { $gte: 5 } }
+    let toursQuery = Tour.find(filter);
+
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ");
+      toursQuery = toursQuery.sort(sortBy);
+    } else {
+      toursQuery.sort("-createdAt");
+    }
+
+    if (req.query.fields) {
+      const fields = req.query.fields.split(",").join(" ");
+      toursQuery.select(fields);
+    } else {
+      toursQuery.select("-__v");
+    }
+
+    const pageNo = Number(req.query.page) || 1;
+    const itemsPerPage = Number(req.query.limit) || 100;
+    toursQuery = toursQuery
+      .skip(itemsPerPage * (pageNo - 1))
+      .limit(itemsPerPage);
+
+    if (req.query.page) {
+      const tourCount = await Tour.countDocuments();
+      if (tourCount / itemsPerPage < pageNo)
+        throw new Error("Invalid page number: Exceeds page count.");
+    }
 
     const tours = await toursQuery;
 
