@@ -1,42 +1,49 @@
 import Tour from "../models/toursModel.js";
 
-function createToursFilter(urlQuery) {
-  const validQueryFields = [
+function parseToursQueryCriteria(query) {
+  const validFields = new Set([
     "name",
     "duration",
     "difficulty",
     "duration",
     "ratingsAverage",
     "price",
-  ];
+  ]);
+  const validOperators = new Set(["gte", "gt", "lte", "lt"]);
 
-  const validComparisonOperators = ["gte", "gt", "lte", "lt"];
+  const result = {};
 
-  const filter = {};
-  validQueryFields.forEach((field) => {
-    if (urlQuery[field]) {
-      switch (typeof urlQuery[field]) {
+  for (const [field, fieldValue] of Object.entries(query)) {
+    if (validFields.has(field)) {
+      switch (typeof fieldValue) {
         case "object":
-          validComparisonOperators.forEach((operator) => {
-            if (urlQuery[field][operator]) {
-              if (!filter[field]) filter[field] = {};
-              filter[field][`$${operator}`] = urlQuery[field][operator];
-            }
-          });
+          for (const [op, opValue] of Object.entries(fieldValue)) {
+            if (!validOperators.has(op))
+              throw new Error(`Invalid query operator '${op}'.`);
+            if (!result[field]) result[field] = {};
+            result[field][`$${op}`] = opValue;
+          }
+          break;
+        case "boolean":
+        case "number":
+        case "string":
+          result[field] = fieldValue;
           break;
         default:
-          filter[field] = urlQuery[field];
+          throw new Error(
+            `Invalid query type: '${field}' is of type '${typeof fieldValue}'.`,
+          );
       }
     }
-  });
+  }
 
-  return filter;
+  return result;
 }
 
 export async function getAllTours(req, res) {
   try {
-    const filter = createToursFilter(req.query);
-    const toursQuery = Tour.find(filter);
+    const criteria = parseToursQueryCriteria(req.query);
+    const toursQuery = Tour.find(criteria);
 
     // TODO: Apply additional operations to the query.
     // { difficulty: "easy", duration: { $gte: 5 } }
@@ -53,7 +60,7 @@ export async function getAllTours(req, res) {
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: error,
+      message: error.message,
     });
   }
 }
@@ -71,7 +78,7 @@ export async function getTour(req, res) {
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: error,
+      message: error.message,
     });
   }
 }
@@ -88,7 +95,7 @@ export async function createTour(req, res) {
   } catch (error) {
     res.status(400).json({
       status: "fail",
-      message: error,
+      message: error.message,
     });
   }
 }
@@ -108,7 +115,7 @@ export async function updateTour(req, res) {
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: error,
+      message: error.message,
     });
   }
 }
@@ -123,7 +130,7 @@ export async function deleteTour(req, res) {
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: error,
+      message: error.message,
     });
   }
 }
