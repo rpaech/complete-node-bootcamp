@@ -19,6 +19,7 @@
     "class-methods-use-this": "off",
     "prefer-destructuring": ["error", { "object": true, "array": false }],
     "no-unused-vars": ["error", { "argsIgnorePattern": "req|res|next|val" }],
-    "no-restricted-syntax": "off"
+    "no-restricted-syntax": "off",
+    "yoda": ["error", "never", { "exceptRange": true }]
   }
 }

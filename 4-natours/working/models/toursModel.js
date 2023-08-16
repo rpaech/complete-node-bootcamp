@@ -15,6 +15,9 @@ mongoose
   })
   .then(() => {
     console.log("Connected to database.");
+  })
+  .catch((error) => {
+    throw new Error(error.message);
   });
 
 const tourSchema = new mongoose.Schema(
