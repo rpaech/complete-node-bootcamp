@@ -1,39 +1,75 @@
-import path from "path";
-import url from "url";
-import fs from "fs";
+import User from "../models/usersModel.js";
+import ApiRequest from "../helpers/apiRequest.js";
+import asyncErrorWrapper from "../helpers/asyncErrorWrapper.js";
+import AppError from "../helpers/appError.js";
 
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const validFields = ["name", "email", "photo"];
 
-const usersDataFile = `${__dirname}/../dev-data/data/tours-test.json`;
-const users = JSON.parse(fs.readFileSync(usersDataFile));
+export const getAllUsers = asyncErrorWrapper(async (req, res, next) => {
+  const apiRequest = new ApiRequest(User.find(), req.query, validFields)
+    .filter()
+    .sort()
+    .select()
+    .paginate();
+  const users = await apiRequest.query;
+  res.status(200).json({
+    status: "success",
+    results: users.length,
+    data: {
+      users,
+    },
+  });
+});
 
-export function getAllUsers(req, res) {
-  res
-    .status(500)
-    .json({ status: "error", message: "This route is not yet defined." });
-}
+export const getUser = asyncErrorWrapper(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
 
-export function getUser(req, res) {
-  res
-    .status(500)
-    .json({ status: "error", message: "This route is not yet defined." });
-}
+  if (!user)
+    throw new AppError(`No user found for ID '${req.params.id}'.`, 404);
 
-export function createUser(req, res) {
-  res
-    .status(500)
-    .json({ status: "error", message: "This route is not yet defined." });
-}
+  res.status(200).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
+});
 
-export function updateUser(req, res) {
-  res
-    .status(500)
-    .json({ status: "error", message: "This route is not yet defined." });
-}
+export const createUser = asyncErrorWrapper(async (req, res, next) => {
+  const newTour = await User.create(req.body);
+  res.status(201).json({
+    status: "success",
+    data: {
+      user: newTour,
+    },
+  });
+});
 
-export function deleteUser(req, res) {
-  res
-    .status(500)
-    .json({ status: "error", message: "This route is not yet defined." });
-}
+export const updateUser = asyncErrorWrapper(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!user)
+    throw new AppError(`No user found for ID '${req.params.id}'.`, 404);
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
+});
+
+export const deleteUser = asyncErrorWrapper(async (req, res, next) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+
+  if (!user)
+    throw new AppError(`No user found for ID '${req.params.id}'.`, 404);
+
+  res.status(204).json({
+    status: "success",
+    data: null,
+  });
+});

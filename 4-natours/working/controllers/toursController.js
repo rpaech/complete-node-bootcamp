@@ -3,46 +3,55 @@ import ApiRequest from "../helpers/apiRequest.js";
 import asyncErrorWrapper from "../helpers/asyncErrorWrapper.js";
 import AppError from "../helpers/appError.js";
 
-function parseToursQueryCriteria(query) {
-  const validFields = new Set([
-    "name",
-    "duration",
-    "difficulty",
-    "duration",
-    "ratingsAverage",
-    "price",
-  ]);
-  const validOperators = new Set(["gte", "gt", "lte", "lt"]);
+const validFields = [
+  "name",
+  "duration",
+  "difficulty",
+  "duration",
+  "ratingsAverage",
+  "price",
+];
 
-  const result = {};
+// function parseToursQueryCriteria(query) {
+//   const validFields = new Set([
+//     "name",
+//     "duration",
+//     "difficulty",
+//     "duration",
+//     "ratingsAverage",
+//     "price",
+//   ]);
+//   const validOperators = new Set(["gte", "gt", "lte", "lt"]);
 
-  for (const [field, fieldValue] of Object.entries(query)) {
-    if (validFields.has(field)) {
-      switch (typeof fieldValue) {
-        case "object":
-          for (const [op, opValue] of Object.entries(fieldValue)) {
-            if (!validOperators.has(op))
-              throw new AppError(`Invalid query operator '${op}'.`, 404);
-            if (!result[field]) result[field] = {};
-            result[field][`$${op}`] = opValue;
-          }
-          break;
-        case "boolean":
-        case "number":
-        case "string":
-          result[field] = fieldValue;
-          break;
-        default:
-          throw new AppError(
-            `Invalid query type: '${field}' is of type '${typeof fieldValue}'.`,
-            404,
-          );
-      }
-    }
-  }
+//   const result = {};
 
-  return result;
-}
+//   for (const [field, fieldValue] of Object.entries(query)) {
+//     if (validFields.has(field)) {
+//       switch (typeof fieldValue) {
+//         case "object":
+//           for (const [op, opValue] of Object.entries(fieldValue)) {
+//             if (!validOperators.has(op))
+//               throw new AppError(`Invalid query operator '${op}'.`, 404);
+//             if (!result[field]) result[field] = {};
+//             result[field][`$${op}`] = opValue;
+//           }
+//           break;
+//         case "boolean":
+//         case "number":
+//         case "string":
+//           result[field] = fieldValue;
+//           break;
+//         default:
+//           throw new AppError(
+//             `Invalid query type: '${field}' is of type '${typeof fieldValue}'.`,
+//             404,
+//           );
+//       }
+//     }
+//   }
+
+//   return result;
+// }
 
 export function aliasTopTours(req, res, next) {
   req.query.limit = "5";
@@ -52,8 +61,8 @@ export function aliasTopTours(req, res, next) {
 }
 
 export const getAllTours = asyncErrorWrapper(async (req, res, next) => {
-  const apiRequest = new ApiRequest(Tour.find(), req.query)
-    .filter(parseToursQueryCriteria)
+  const apiRequest = new ApiRequest(Tour.find(), req.query, validFields)
+    .filter()
     .sort()
     .select()
     .paginate();

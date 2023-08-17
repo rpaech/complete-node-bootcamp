@@ -1,11 +1,48 @@
+import AppError from "./appError.js";
+
 class ApiRequest {
-  constructor(query, params) {
+  constructor(query, params, fields) {
     this.query = query;
     this.params = params;
+    this.validFields = fields;
   }
 
-  filter(parser) {
-    this.query.find(parser(this.params));
+  #parseQueryCriteria(query) {
+    const validFields = new Set(this.validFields);
+    const validOperators = new Set(["gte", "gt", "lte", "lt"]);
+
+    const result = {};
+
+    for (const [field, fieldValue] of Object.entries(query)) {
+      if (validFields.has(field)) {
+        switch (typeof fieldValue) {
+          case "object":
+            for (const [op, opValue] of Object.entries(fieldValue)) {
+              if (!validOperators.has(op))
+                throw new AppError(`Invalid query operator '${op}'.`, 404);
+              if (!result[field]) result[field] = {};
+              result[field][`$${op}`] = opValue;
+            }
+            break;
+          case "boolean":
+          case "number":
+          case "string":
+            result[field] = fieldValue;
+            break;
+          default:
+            throw new AppError(
+              `Invalid query type: '${field}' is of type '${typeof fieldValue}'.`,
+              404,
+            );
+        }
+      }
+    }
+
+    return result;
+  }
+
+  filter() {
+    this.query.find(this.#parseQueryCriteria(this.params));
 
     return this;
   }

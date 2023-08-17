@@ -39,6 +39,20 @@ function createValidationErrorBody(error) {
   };
 }
 
+function createWebTokenErrorBody(error) {
+  return {
+    status: "fail",
+    message: `Authorization error: ${error.message}.`,
+  };
+}
+
+function createWebTokenExpiredBody(error) {
+  return {
+    status: "fail",
+    message: `Authorization error: ${error.message} ${error.expiredAt}.`,
+  };
+}
+
 function createGenericErrorBody() {
   return {
     status: "error",
@@ -47,11 +61,11 @@ function createGenericErrorBody() {
 }
 
 export default (error, req, res, next) => {
-  let statusCode = error.statusCode || 500;
-
+  let statusCode;
   let result;
 
   if (process.env.NODE_ENV === "development") {
+    statusCode = error.statusCode || 500;
     result = createDevErrorBody(error);
   } else if (error.name === "CastError") {
     statusCode = 400;
@@ -62,7 +76,14 @@ export default (error, req, res, next) => {
   } else if (error.name === "ValidationError") {
     statusCode = 400;
     result = createValidationErrorBody(error);
+  } else if (error.name === "JsonWebTokenError") {
+    statusCode = 401;
+    result = createWebTokenErrorBody(error);
+  } else if (error.name === "TokenExpiredError") {
+    statusCode = 401;
+    result = createWebTokenExpiredBody(error);
   } else if (error.isOperational) {
+    statusCode = error.statusCode || 500;
     result = createAppErrorBody(error);
   } else {
     statusCode = 500;
