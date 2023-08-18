@@ -8,21 +8,41 @@ const router = express.Router();
 
 router
   .route("/top-5-cheap")
-  .get(toursController.aliasTopTours, toursController.getAllTours);
+  .get(
+    authController.protect,
+    toursController.aliasTopTours,
+    toursController.getAllTours,
+  );
 
-router.route("/stats").get(toursController.getTourStats);
+router
+  .route("/stats")
+  .get(authController.protect, toursController.getTourStats);
 
-router.route("/monthly-plan/:year").get(toursController.getMonthlyPlan);
+router
+  .route("/monthly-plan/:year")
+  .get(authController.protect, toursController.getMonthlyPlan);
 
 router
   .route("/")
   .get(authController.protect, toursController.getAllTours)
-  .post(toursController.createTour);
+  .post(
+    authController.protect,
+    authController.restrictTo("admin", "lead-guide"),
+    toursController.createTour,
+  );
 
 router
   .route("/:id")
-  .get(toursController.getTour)
-  .patch(toursController.updateTour)
-  .delete(toursController.deleteTour);
+  .get(authController.protect, toursController.getTour)
+  .patch(
+    authController.protect,
+    authController.restrictTo("admin", "lead-guide"),
+    toursController.updateTour,
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo("admin", "lead-guide"),
+    toursController.deleteTour,
+  );
 
 export default router;
