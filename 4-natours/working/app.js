@@ -2,6 +2,12 @@ import path from "path";
 import url from "url";
 import express from "express";
 import morgan from "morgan";
+import { rateLimit } from "express-rate-limit";
+import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
+import xss from "xss-clean";
+import hpp from "hpp";
+
 import AppError from "./helpers/appError.js";
 import appErrorHandler from "./controllers/errorController.js";
 import toursRouter from "./routers/toursRouter.js";
@@ -15,9 +21,39 @@ const app = express();
 ///////////////////////////////////////////////////////////////////////////////
 // Register middleware
 
-if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
-app.use(express.json());
+app.use(helmet());
+
+app.use(
+  "/api",
+  rateLimit({
+    max: 100,
+    windowMs: 60 * 60 * 1000,
+    message: "Request limit exceeded; IP address blocked for one hour.",
+  }),
+);
+
+app.use(mongoSanitize());
+
+app.use(xss());
+
+app.use(
+  hpp({
+    whitelist: [
+      "duration",
+      "difficulty",
+      "price",
+      "ratingsAverage",
+      "ratingsQuantity",
+      "maxGroupSize",
+    ],
+  }),
+);
+
+app.use(express.json({ limit: "10kb" }));
+
 app.use(express.static(`${__dirname}/public`));
+
+if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 ///////////////////////////////////////////////////////////////////////////////
 // Register route handlers

@@ -5,6 +5,15 @@ import AppError from "../helpers/appError.js";
 
 const validFields = ["name", "email", "photo"];
 
+function filterObj(obj, ...fields) {
+  const fieldSet = new Set(fields);
+  const result = {};
+  Object.entries(obj).forEach(([field, value]) => {
+    if (fieldSet.has(field)) result[field] = value;
+  });
+  return result;
+}
+
 export const getAllUsers = asyncErrorWrapper(async (req, res, next) => {
   const apiRequest = new ApiRequest(User.find(), req.query, validFields)
     .filter()
@@ -36,11 +45,11 @@ export const getUser = asyncErrorWrapper(async (req, res, next) => {
 });
 
 export const createUser = asyncErrorWrapper(async (req, res, next) => {
-  const newTour = await User.create(req.body);
+  const user = await User.create(req.body);
   res.status(201).json({
     status: "success",
     data: {
-      user: newTour,
+      user,
     },
   });
 });
@@ -67,6 +76,32 @@ export const deleteUser = asyncErrorWrapper(async (req, res, next) => {
 
   if (!user)
     throw new AppError(`No user found for ID '${req.params.id}'.`, 404);
+
+  res.status(204).json({
+    status: "success",
+    data: null,
+  });
+});
+
+export const updateMyProfile = asyncErrorWrapper(async (req, res, next) => {
+  if (req.body.password)
+    throw new AppError("Unable to update password via this route.", 403);
+
+  const profileData = filterObj(req.body, "name", "email");
+  const user = await User.findByIdAndUpdate(req.user.id, profileData, {
+    new: true,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
+});
+
+export const deleteMyProfile = asyncErrorWrapper(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
 
   res.status(204).json({
     status: "success",

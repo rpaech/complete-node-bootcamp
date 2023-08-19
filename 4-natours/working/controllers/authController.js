@@ -12,13 +12,34 @@ function signToken(id) {
   });
 }
 
+function sanitisedUserData(user) {
+  return {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  };
+}
+
 const sendToken = (res, user, statusCode, data) => {
   const token = signToken(user._id);
+
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 60 * 60 * 1000,
+    ),
+    secure: true,
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === "development") cookieOptions.secure = false;
+  res.cookie("jwt", token, cookieOptions);
+
   const result = {
     status: "success",
     token,
   };
   if (data) result.data = data;
+
   res.status(statusCode).json(result);
 };
 
@@ -31,7 +52,7 @@ export const signup = asyncErrorWrapper(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
-  sendToken(res, user, 201, { user });
+  sendToken(res, user, 201, { user: sanitisedUserData(user) });
 });
 
 export const login = asyncErrorWrapper(async (req, res, next) => {
@@ -134,7 +155,7 @@ export const resetPassword = asyncErrorWrapper(async (req, res, next) => {
   sendToken(res, user, 200);
 });
 
-export const updatePassword = asyncErrorWrapper(async (req, res, next) => {
+export const updateMyPassword = asyncErrorWrapper(async (req, res, next) => {
   const user = await User.findById(req.user.id).select("+password");
 
   const correct = await user.correctPassword(
