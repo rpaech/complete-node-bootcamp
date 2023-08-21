@@ -3,11 +3,11 @@ import Tour from "./models/toursModel.js";
 import User from "./models/usersModel.js";
 
 const tours = JSON.parse(
-  fs.readFileSync("./dev-data/data/test-tours.json", "utf-8"),
+  fs.readFileSync("./dev-data/data/sample-tours.json", "utf-8"),
 );
 
 const users = JSON.parse(
-  fs.readFileSync("./dev-data/data/test-users.json", "utf-8"),
+  fs.readFileSync("./dev-data/data/sample-users.json", "utf-8"),
 );
 
 async function deleteData() {

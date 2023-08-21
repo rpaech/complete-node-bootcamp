@@ -11,7 +11,7 @@
     "start:dev": "nodemon --require dotenv/config server.js dotenv_config_path=dev-local.env",
     "start:prod": "nodemon --require dotenv/config server.js dotenv_config_path=prod-local.env",
     "start:db": "mongod --auth --port 27017 --dbpath D:/MongoDB/data/db --logpath D:/MongoDB/log/mongod.log --bind_ip 127.0.0.1",
-    "reset:db": "node --require dotenv/config reset-sample-data.js dotenv_config_path=dev-local.env"
+    "reset:db": "node --require dotenv/config import-sample-data.js dotenv_config_path=dev-local.env"
   },
   "author": "",
   "license": "ISC",
