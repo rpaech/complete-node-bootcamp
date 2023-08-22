@@ -12,6 +12,7 @@ import AppError from "./helpers/appError.js";
 import appErrorHandler from "./controllers/errorController.js";
 import toursRouter from "./routers/toursRouter.js";
 import usersRouter from "./routers/usersRouter.js";
+import reviewsRouter from "./routers/reviewsRouter.js";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,6 +64,9 @@ app.use(toursApiPath, toursRouter);
 
 const usersApiPath = "/api/v1/users";
 app.use(usersApiPath, usersRouter);
+
+const reviewsApiPath = "/api/v1/reviews";
+app.use(reviewsApiPath, reviewsRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't route to path '${req.originalUrl}'.`, 404));

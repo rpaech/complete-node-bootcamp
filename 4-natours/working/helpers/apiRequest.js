@@ -9,7 +9,7 @@ class ApiRequest {
 
   #parseQueryCriteria(query) {
     const validFields = new Set(this.validFields);
-    const validOperators = new Set(["gte", "gt", "lte", "lt"]);
+    const validOperators = new Set(["gte", "gt", "lte", "lt", "eq", "ne"]);
 
     const result = {};
 

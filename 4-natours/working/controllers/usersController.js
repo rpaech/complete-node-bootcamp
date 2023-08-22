@@ -3,7 +3,7 @@ import ApiRequest from "../helpers/apiRequest.js";
 import asyncErrorWrapper from "../helpers/asyncErrorWrapper.js";
 import AppError from "../helpers/appError.js";
 
-const validFields = ["name", "email", "photo"];
+const validFields = ["name", "email", "photo", "role"];
 
 function filterObj(obj, ...fields) {
   const fieldSet = new Set(fields);
