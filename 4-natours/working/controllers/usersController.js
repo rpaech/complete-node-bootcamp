@@ -14,6 +14,11 @@ function filterObj(obj, ...fields) {
   return result;
 }
 
+export const setMyProfileId = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
 export const updateMyProfile = asyncErrorWrapper(async (req, res, next) => {
   if (req.body.password)
     throw new AppError("Unable to update password via this route.", 403);

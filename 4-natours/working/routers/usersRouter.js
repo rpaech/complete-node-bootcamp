@@ -10,53 +10,33 @@ router.post("/login", authController.login);
 router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword/:token", authController.resetPassword);
 
-router.patch(
-  "/updateMyPassword",
-  authController.protect,
-  authController.updateMyPassword,
-);
+///////////////////////////////////////////////////////////////////////////////
+// Protect the routes below to only authenticated users.
+router.use(authController.protect);
+///////////////////////////////////////////////////////////////////////////////
 
-router.patch(
-  "/updateMyProfile",
-  authController.protect,
-  usersController.updateMyProfile,
+router.patch("/updateMyPassword", authController.updateMyPassword);
+router.get(
+  "/myProfile",
+  usersController.setMyProfileId,
+  usersController.getUser,
 );
+router.patch("/updateMyProfile", usersController.updateMyProfile);
+router.delete("/deleteMyProfile", usersController.deleteMyProfile);
 
-router.delete(
-  "/deleteMyProfile",
-  authController.protect,
-  usersController.deleteMyProfile,
-);
+///////////////////////////////////////////////////////////////////////////////
+// Restrict the routes below to only the 'admin' role.
+router.use(authController.restrictTo("admin"));
+///////////////////////////////////////////////////////////////////////////////
 
 router
   .route("/")
-  .get(
-    authController.protect,
-    authController.restrictTo("admin"),
-    usersController.getAllUsers,
-  )
-  .post(
-    authController.protect,
-    authController.restrictTo("admin"),
-    usersController.createUser,
-  );
-
+  .get(usersController.getAllUsers)
+  .post(usersController.createUser);
 router
   .route("/:id")
-  .get(
-    authController.protect,
-    authController.restrictTo("admin"),
-    usersController.getUser,
-  )
-  .patch(
-    authController.protect,
-    authController.restrictTo("admin"),
-    usersController.updateUser,
-  )
-  .delete(
-    authController.protect,
-    authController.restrictTo("admin"),
-    usersController.deleteUser,
-  );
+  .get(usersController.getUser)
+  .patch(usersController.updateUser)
+  .delete(usersController.deleteUser);
 
 export default router;

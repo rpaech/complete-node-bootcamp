@@ -4,11 +4,15 @@ import * as authController from "../controllers/authController.js";
 
 const router = express.Router({ mergeParams: true });
 
+///////////////////////////////////////////////////////////////////////////////
+// Protect the routes below to only authenticated users.
+router.use(authController.protect);
+///////////////////////////////////////////////////////////////////////////////
+
 router
   .route("/")
   .get(reviewsController.setQueryIds, reviewsController.getAllReviews)
   .post(
-    authController.protect,
     authController.restrictTo("user"),
     reviewsController.setBodyIds,
     reviewsController.createReview,
@@ -17,7 +21,13 @@ router
 router
   .route("/:id")
   .get(reviewsController.getReview)
-  .patch(authController.protect, reviewsController.updateReview)
-  .delete(authController.protect, reviewsController.deleteReview);
+  .patch(
+    authController.restrictTo("user", "admin"),
+    reviewsController.updateReview,
+  )
+  .delete(
+    authController.restrictTo("user", "admin"),
+    reviewsController.deleteReview,
+  );
 
 export default router;
