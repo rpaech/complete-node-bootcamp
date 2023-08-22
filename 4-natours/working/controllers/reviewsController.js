@@ -6,6 +6,7 @@ import AppError from "../helpers/appError.js";
 const validFields = ["review", "rating", "user", "tour", "createdAt"];
 
 export const getAllReviews = asyncErrorWrapper(async (req, res, next) => {
+  if (req.params.tourId) req.query.tour = req.params.tourId;
   const apiRequest = new ApiRequest(Review.find(), req.query, validFields)
     .filter()
     .sort()
@@ -36,7 +37,9 @@ export const getReview = asyncErrorWrapper(async (req, res, next) => {
 });
 
 export const createReview = asyncErrorWrapper(async (req, res, next) => {
-  // req.body.user = req.user.id;
+  if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.user) req.body.user = req.user.id;
+
   const review = await Review.create(req.body);
   res.status(201).json({
     status: "success",

@@ -1,10 +1,20 @@
 import express from "express";
 import * as toursController from "../controllers/toursController.js";
 import * as authController from "../controllers/authController.js";
+import reviewRouter from "./reviewsRouter.js";
 
 const router = express.Router();
 
 // router.param("id", toursController.checkId);
+
+// router
+//   .route("/:tourId/reviews")
+//   .post(
+//     authController.protect,
+//     authController.restrictTo("user"),
+//     reviewsController.createReview,
+//   );
+router.use("/:tourId/reviews", reviewRouter);
 
 router
   .route("/top-5-cheap")
