@@ -37,6 +37,7 @@ export const getMany = (Model, validFields) =>
       .sort()
       .select()
       .paginate();
+    // const docs = await apiRequest.query.explain();
     const docs = await apiRequest.query;
     res.status(200).json({
       status: "success",
