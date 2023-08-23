@@ -1,5 +1,6 @@
 import Tour from "../models/toursModel.js";
 import asyncErrorWrapper from "../helpers/asyncErrorWrapper.js";
+import AppError from "../helpers/appError.js";
 import * as factory from "./routeHandlerFactory.js";
 
 const validFields = [
@@ -71,6 +72,63 @@ export const getMonthlyPlan = asyncErrorWrapper(async (req, res, next) => {
     status: "success",
     data: {
       plan,
+    },
+  });
+});
+
+export const getToursWithin = asyncErrorWrapper(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+
+  const [lat, lng] = latlng.split(",");
+  if (!lat || !lng) throw new AppError("Invalid latitude and longitude.", 400);
+
+  const radius = distance / (unit === "mi" ? 3963.2 : 6378.1);
+
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+
+  res.status(200).json({
+    status: "success",
+    results: tours.length,
+    data: {
+      data: tours,
+    },
+  });
+});
+
+export const getTourDistances = asyncErrorWrapper(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+
+  const [lat, lng] = latlng.split(",");
+  if (!lat || !lng) throw new AppError("Invalid latitude and longitude.", 400);
+
+  const multiplier = (unit === "mi" ? 0.621371 : 1) / 1000;
+
+  const distances = await Tour.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [Number(lng), Number(lat)],
+        },
+        distanceField: "distance",
+        distanceMultiplier: multiplier,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    results: distances.length,
+    data: {
+      data: distances,
     },
   });
 });

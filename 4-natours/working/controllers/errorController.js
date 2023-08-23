@@ -24,7 +24,7 @@ function createCastErrorBody(error) {
 function createDuplicateKeyErrorBody(error) {
   return {
     status: "fail",
-    message: `Invalid key: '${error.keyValue.name}' already exists.`,
+    message: `Invalid key: Key already exists.`,
   };
 }
 
