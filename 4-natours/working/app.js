@@ -19,8 +19,13 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+app.set("view engine", "pug");
+app.set("views", path.join(__dirname, "views"));
+
 ///////////////////////////////////////////////////////////////////////////////
 // Register middleware
+
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(helmet());
 
@@ -52,12 +57,17 @@ app.use(
 
 app.use(express.json({ limit: "10kb" }));
 
-app.use(express.static(`${__dirname}/public`));
-
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 ///////////////////////////////////////////////////////////////////////////////
 // Register route handlers
+
+app.get("/", (req, res) => {
+  res.status(200).render("base", {
+    tour: "The Random Trashcan Tour",
+    user: "Bob",
+  });
+});
 
 const toursApiPath = "/api/v1/tours";
 app.use(toursApiPath, toursRouter);

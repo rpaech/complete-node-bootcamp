@@ -1,18 +1,32 @@
 import fs from "fs";
+import path from "path";
+import url from "url";
 import Tour from "./models/toursModel.js";
 import User from "./models/usersModel.js";
 import Review from "./models/reviewsModel.js";
 
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const tours = JSON.parse(
-  fs.readFileSync("./dev-data/data/sample-tours.json", "utf-8"),
+  fs.readFileSync(
+    path.join(__dirname, "dev-data/data/sample-tours.json"),
+    "utf-8",
+  ),
 );
 
 const users = JSON.parse(
-  fs.readFileSync("./dev-data/data/sample-users.json", "utf-8"),
+  fs.readFileSync(
+    path.join(__dirname, "dev-data/data/sample-users.json"),
+    "utf-8",
+  ),
 );
 
 const reviews = JSON.parse(
-  fs.readFileSync("./dev-data/data/sample-reviews.json", "utf-8"),
+  fs.readFileSync(
+    path.join(__dirname, "dev-data/data/sample-reviews.json"),
+    "utf-8",
+  ),
 );
 
 async function deleteData() {
