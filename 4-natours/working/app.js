@@ -13,6 +13,7 @@ import appErrorHandler from "./controllers/errorController.js";
 import toursRouter from "./routers/toursRouter.js";
 import usersRouter from "./routers/usersRouter.js";
 import reviewsRouter from "./routers/reviewsRouter.js";
+import viewsRouter from "./routers/viewsRouter.js";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,12 +63,8 @@ if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 ///////////////////////////////////////////////////////////////////////////////
 // Register route handlers
 
-app.get("/", (req, res) => {
-  res.status(200).render("base", {
-    tour: "The Random Trashcan Tour",
-    user: "Bob",
-  });
-});
+const viewsPath = "/";
+app.use(viewsPath, viewsRouter);
 
 const toursApiPath = "/api/v1/tours";
 app.use(toursApiPath, toursRouter);
