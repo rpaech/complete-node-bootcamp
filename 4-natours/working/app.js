@@ -28,7 +28,18 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'", "https:", "data:"],
+      baseUri: ["'self'"],
+      fontSrc: ["'self'", "https:", "data:"],
+      scriptSrc: ["'self'", "https:"],
+      styleSrc: ["'self'", "https:"],
+      imgSrc: ["'self'", "https:", "data:"],
+    },
+  }),
+);
 
 app.use(
   "/api",
