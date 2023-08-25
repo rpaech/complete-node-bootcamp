@@ -6,17 +6,29 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "targets": {
+    "frontend": {
+      "context": "browser",
+      "source": "./js/index.js",
+      "distDir": "./public/js"
+    }
+  },
   "scripts": {
     "debug:dev": "nodemon --inspect --require dotenv/config server.js dotenv_config_path=dev-local.env",
     "start:dev": "nodemon --require dotenv/config server.js dotenv_config_path=dev-local.env",
     "start:prod": "nodemon --require dotenv/config server.js dotenv_config_path=prod-local.env",
     "start:db": "mongod --auth --port 27017 --dbpath D:/MongoDB/data/db --logpath D:/MongoDB/log/mongod.log --bind_ip 127.0.0.1",
-    "reset:db": "node --require dotenv/config import-sample-data.js dotenv_config_path=dev-local.env"
+    "reset:db": "node --require dotenv/config import-sample-data.js dotenv_config_path=dev-local.env",
+    "watch:js": "parcel watch --no-hmr --target frontend",
+    "build:js": "parcel build --target frontend"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
     "express": "^4.18.2",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^6.9.0",
@@ -33,6 +45,7 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
+    "buffer": "^6.0.3",
     "cross-env": "^7.0.3",
     "dotenv": "^16.3.1",
     "eslint": "^8.46.0",
@@ -44,6 +57,7 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.33.1",
     "nodemon": "^3.0.1",
+    "parcel": "^2.9.3",
     "prettier": "^3.0.1"
   },
   "nodemonConfig": {

@@ -7,6 +7,7 @@ import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
 import xss from "xss-clean";
 import hpp from "hpp";
+import cookieParser from "cookie-parser";
 
 import AppError from "./helpers/appError.js";
 import appErrorHandler from "./controllers/errorController.js";
@@ -31,7 +32,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      defaultSrc: ["'self'", "https:", "data:"],
+      defaultSrc: ["'self'", "https:", "data:", "ws:"],
       baseUri: ["'self'"],
       fontSrc: ["'self'", "https:", "data:"],
       scriptSrc: ["'self'", "https:"],
@@ -68,8 +69,17 @@ app.use(
 );
 
 app.use(express.json({ limit: "10kb" }));
+app.use(cookieParser());
 
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
+
+///////////////////////////////////////////////////////////////////////////////
+// Test middlewar
+
+app.use((req, res, next) => {
+  // console.log("Cookies", req.cookies);
+  next();
+});
 
 ///////////////////////////////////////////////////////////////////////////////
 // Register route handlers

@@ -31,7 +31,10 @@ const sendToken = (res, user, statusCode, data) => {
     secure: true,
     httpOnly: true,
   };
-  if (process.env.NODE_ENV === "development") cookieOptions.secure = false;
+  if (process.env.NODE_ENV === "development") {
+    cookieOptions.secure = true;
+    cookieOptions.sameSite = "none";
+  }
   res.cookie("jwt", token, cookieOptions);
 
   const result = {
@@ -69,12 +72,31 @@ export const login = asyncErrorWrapper(async (req, res, next) => {
   sendToken(res, user, 200);
 });
 
-export const protect = asyncErrorWrapper(async (req, res, next) => {
-  const { authorization } = req.headers;
-  if (!authorization || !authorization.startsWith("Bearer"))
-    throw new AppError("Missing authorization.", 401);
+export const logout = asyncErrorWrapper(async (req, res, next) => {
+  res.cookie("jwt", "", {
+    expires: new Date(Date.now()),
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+  res.status(200).json({
+    status: "success",
+    data: null,
+  });
+});
 
-  const token = authorization.split(" ")[1];
+export const protect = asyncErrorWrapper(async (req, res, next) => {
+  let token;
+
+  const { authorization } = req.headers;
+  if (authorization && authorization.startsWith("Bearer")) {
+    token = authorization.split(" ")[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  } else {
+    throw new AppError("Missing authorization.", 401);
+  }
+
   if (!token) throw new AppError("Missing authorization token.", 401);
 
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
@@ -88,6 +110,18 @@ export const protect = asyncErrorWrapper(async (req, res, next) => {
     );
 
   req.user = user;
+  next();
+});
+
+export const isLoggedIn = asyncErrorWrapper(async (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (!token) return next();
+
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const user = await User.findById(decoded.id);
+  if (!user || user.passwordChangedAfter(decoded.iat)) return next();
+
+  res.locals.user = user;
   next();
 });
 

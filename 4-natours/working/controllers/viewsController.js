@@ -2,7 +2,7 @@ import Tour from "../models/toursModel.js";
 import asyncErrorWrapper from "../helpers/asyncErrorWrapper.js";
 import AppError from "../helpers/appError.js";
 
-export const getOverview = asyncErrorWrapper(async (req, res) => {
+export const getOverview = asyncErrorWrapper(async (req, res, next) => {
   const tours = await Tour.find();
 
   res.status(200).render("overview", {
@@ -11,7 +11,7 @@ export const getOverview = asyncErrorWrapper(async (req, res) => {
   });
 });
 
-export const getTour = asyncErrorWrapper(async (req, res) => {
+export const getTour = asyncErrorWrapper(async (req, res, next) => {
   const tour = await Tour.findOne({ slug: req.params.slug }).populate({
     path: "reviews",
     fields: "review rating user",
@@ -22,4 +22,8 @@ export const getTour = asyncErrorWrapper(async (req, res) => {
     title: tour.name,
     tour,
   });
+});
+
+export const getLoginForm = asyncErrorWrapper(async (req, res, next) => {
+  res.status(200).render("login", { title: "Login" });
 });
