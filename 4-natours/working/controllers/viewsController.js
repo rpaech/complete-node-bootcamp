@@ -1,4 +1,5 @@
 import Tour from "../models/toursModel.js";
+import User from "../models/usersModel.js";
 import asyncErrorWrapper from "../helpers/asyncErrorWrapper.js";
 import AppError from "../helpers/appError.js";
 
@@ -16,7 +17,7 @@ export const getTour = asyncErrorWrapper(async (req, res, next) => {
     path: "reviews",
     fields: "review rating user",
   });
-  if (!tour) throw new AppError(`No tour found for '${req.params.slug}'`, 400);
+  if (!tour) throw new AppError(`No tour found for '${req.params.slug}'.`, 404);
 
   res.status(200).render("tour", {
     title: tour.name,
@@ -26,4 +27,26 @@ export const getTour = asyncErrorWrapper(async (req, res, next) => {
 
 export const getLoginForm = asyncErrorWrapper(async (req, res, next) => {
   res.status(200).render("login", { title: "Login" });
+});
+
+export const getAccount = asyncErrorWrapper(async (req, res, next) => {
+  res.status(200).render("account", { title: "My account" });
+});
+
+export const updateUserData = asyncErrorWrapper(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      name: req.body.name,
+      email: req.body.email,
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  if (!user) throw new AppError("Unable to update user data.", 404);
+
+  res.status(200).render("account", { title: "My account", user });
 });

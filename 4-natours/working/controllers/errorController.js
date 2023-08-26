@@ -91,5 +91,14 @@ export default (error, req, res, next) => {
     console.error(error);
   }
 
-  res.status(statusCode).json(result);
+  if (
+    process.env.NODE_ENV === "development" ||
+    req.originalUrl.startsWith("/api")
+  )
+    res.status(statusCode).json(result);
+  else
+    res.status(statusCode).render("error", {
+      title: "Bang, crash, tinkle",
+      msg: result.message,
+    });
 };

@@ -110,6 +110,7 @@ export const protect = asyncErrorWrapper(async (req, res, next) => {
     );
 
   req.user = user;
+  res.locals.user = user;
   next();
 });
 
