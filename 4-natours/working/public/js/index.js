@@ -167,12 +167,11 @@ if (loginFormElmt) loginFormElmt.addEventListener("submit", (event)=>{
 if (logoutBtnElmt) logoutBtnElmt.addEventListener("click", (0, _loginJs.logout));
 if (userDataFormElmt) userDataFormElmt.addEventListener("submit", (event)=>{
     event.preventDefault();
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    (0, _updateSettingsJs.updateSettings)({
-        name,
-        email
-    }, "settings");
+    const form = new FormData();
+    form.append("name", document.getElementById("name").value);
+    form.append("email", document.getElementById("email").value);
+    form.append("photo", document.getElementById("photo").files[0]);
+    (0, _updateSettingsJs.updateSettings)(form, "settings");
 });
 if (userPasswordFormElmt) userPasswordFormElmt.addEventListener("submit", async (event)=>{
     event.preventDefault();
@@ -189,7 +188,7 @@ if (userPasswordFormElmt) userPasswordFormElmt.addEventListener("submit", async 
     document.getElementById("password-confirm").value = "";
 });
 
-},{"@babel/polyfill":"1RrH3","./login.js":"a1kpn","./map.js":"hOTrO","@parcel/transformer-js/src/esmodule-helpers.js":"i5ZQn","./updateSettings.js":"fRaFS"}],"1RrH3":[function(require,module,exports) {
+},{"@babel/polyfill":"1RrH3","./login.js":"a1kpn","./updateSettings.js":"fRaFS","./map.js":"hOTrO","@parcel/transformer-js/src/esmodule-helpers.js":"i5ZQn"}],"1RrH3":[function(require,module,exports) {
 "use strict";
 require("f50de0aa433a589b");
 var _global = _interopRequireDefault(require("4142986752a079d4"));
@@ -11584,7 +11583,30 @@ function showAlert(type, msg) {
     window.setTimeout(hideAlert, 5000);
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"i5ZQn"}],"hOTrO":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"i5ZQn"}],"fRaFS":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "updateSettings", ()=>updateSettings);
+var _axios = require("axios");
+var _axiosDefault = parcelHelpers.interopDefault(_axios);
+var _alertsJs = require("./alerts.js");
+async function updateSettings(data, type) {
+    try {
+        const res = await (0, _axiosDefault.default)({
+            method: "PATCH",
+            url: type === "password" ? "http://localhost:3000/api/v1/users/updateMyPassword" : "http://localhost:3000/api/v1/users/updateMyProfile",
+            data
+        });
+        if (res.data.status === "success") {
+            (0, _alertsJs.showAlert)("success", "Settings saved.");
+            location.assign("/");
+        }
+    } catch (error) {
+        (0, _alertsJs.showAlert)("error", error.response.data.message);
+    }
+}
+
+},{"axios":"409tG","./alerts.js":"2nXpP","@parcel/transformer-js/src/esmodule-helpers.js":"i5ZQn"}],"hOTrO":[function(require,module,exports) {
 // import "leaflet/dist/leaflet.css";
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -22228,29 +22250,6 @@ exports.default = display;
     window.L = exports1;
 });
 
-},{}],"fRaFS":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "updateSettings", ()=>updateSettings);
-var _axios = require("axios");
-var _axiosDefault = parcelHelpers.interopDefault(_axios);
-var _alertsJs = require("./alerts.js");
-async function updateSettings(data, type) {
-    try {
-        const res = await (0, _axiosDefault.default)({
-            method: "PATCH",
-            url: type === "password" ? "http://localhost:3000/api/v1/users/updateMyPassword" : "http://localhost:3000/api/v1/users/updateMyProfile",
-            data
-        });
-        if (res.data.status === "success") {
-            (0, _alertsJs.showAlert)("success", "Settings saved.");
-            location.assign("/");
-        }
-    } catch (error) {
-        (0, _alertsJs.showAlert)("error", error.response.data.message);
-    }
-}
-
-},{"axios":"409tG","./alerts.js":"2nXpP","@parcel/transformer-js/src/esmodule-helpers.js":"i5ZQn"}]},["4InDC"], "4InDC", "parcelRequire11c7")
+},{}]},["4InDC"], "4InDC", "parcelRequire11c7")
 
 //# sourceMappingURL=index.js.map

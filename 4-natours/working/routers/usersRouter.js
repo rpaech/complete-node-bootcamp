@@ -22,7 +22,12 @@ router.get(
   usersController.setMyProfileId,
   usersController.getUser,
 );
-router.patch("/updateMyProfile", usersController.updateMyProfile);
+router.patch(
+  "/updateMyProfile",
+  usersController.uploadUserPhoto,
+  usersController.resizeUserPhoto,
+  usersController.updateMyProfile,
+);
 router.delete("/deleteMyProfile", usersController.deleteMyProfile);
 
 ///////////////////////////////////////////////////////////////////////////////
